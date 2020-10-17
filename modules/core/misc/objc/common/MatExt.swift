@@ -242,3 +242,122 @@ public extension Mat {
         return __get(indices as [NSNumber]) as! [Double]
     }
 }
+
+public protocol Atable {
+    static func getAt(m: Mat, indices:[Int32]) -> Self
+    static func putAt(m: Mat, indices:[Int32], val: Self)
+}
+
+public class MatAt<N: Atable> {
+    
+    init(mat: Mat, indices: [Int32]) {
+        self.mat = mat
+        self.indices = indices
+    }
+
+    private let mat: Mat
+    private let indices: [Int32]
+    var val: N {
+        get {
+            return N.getAt(m: mat, indices: indices)
+        }
+        set(value) {
+            N.putAt(m: mat, indices: indices, val: value)
+        }
+    }
+}
+
+extension UInt8: Atable {
+    public static func getAt(m: Mat, indices:[Int32]) -> UInt8 {
+        var tmp = [Int8](repeating: 0, count: 1)
+        try! m.get(indices: indices, data: &tmp)
+        return UInt8(bitPattern: tmp[0])
+    }
+
+    public static func putAt(m: Mat, indices: [Int32], val: UInt8) {
+        let tmp = [Int8(bitPattern: val)]
+        try! m.put(indices: indices, data: tmp)
+    }
+}
+
+extension Int8: Atable {
+    public static func getAt(m: Mat, indices:[Int32]) -> Int8 {
+        var tmp = [Int8](repeating: 0, count: 1)
+        try! m.get(indices: indices, data: &tmp)
+        return tmp[0]
+    }
+    
+    public static func putAt(m: Mat, indices: [Int32], val: Int8) {
+        let tmp = [val]
+        try! m.put(indices: indices, data: tmp)
+    }
+}
+
+extension Double: Atable {
+    public static func getAt(m: Mat, indices:[Int32]) -> Double {
+        var tmp = [Double](repeating: 0, count: 1)
+        try! m.get(indices: indices, data: &tmp)
+        return tmp[0]
+    }
+    
+    public static func putAt(m: Mat, indices: [Int32], val: Double) {
+        let tmp = [val]
+        try! m.put(indices: indices, data: tmp)
+    }
+}
+
+extension Float: Atable {
+    public static func getAt(m: Mat, indices:[Int32]) -> Float {
+        var tmp = [Float](repeating: 0, count: 1)
+        try! m.get(indices: indices, data: &tmp)
+        return tmp[0]
+    }
+    
+    public static func putAt(m: Mat, indices: [Int32], val: Float) {
+        let tmp = [val]
+        try! m.put(indices: indices, data: tmp)
+    }
+}
+
+extension Int32: Atable {
+    public static func getAt(m: Mat, indices:[Int32]) -> Int32 {
+        var tmp = [Int32](repeating: 0, count: 1)
+        try! m.get(indices: indices, data: &tmp)
+        return tmp[0]
+    }
+    
+    public static func putAt(m: Mat, indices: [Int32], val: Int32) {
+        let tmp = [val]
+        try! m.put(indices: indices, data: tmp)
+    }
+}
+
+extension Int16: Atable {
+    public static func getAt(m: Mat, indices:[Int32]) -> Int16 {
+        var tmp = [Int16](repeating: 0, count: 1)
+        try! m.get(indices: indices, data: &tmp)
+        return tmp[0]
+    }
+    
+    public static func putAt(m: Mat, indices: [Int32], val: Int16) {
+        let tmp = [val]
+        try! m.put(indices: indices, data: tmp)
+    }
+}
+
+/***
+ *  Example use:
+ *
+ *  let elemantVal: UInt8 = mat.at(row: 50, col: 50).val
+ *  mat.at(row: 50, col: 50).val = 245
+ *
+ */
+public extension Mat {
+    func at<N: Atable>(row: Int32, col: Int32) -> MatAt<N> {
+        return MatAt(mat: self, indices: [row, col])
+    }
+
+    func at<N: Atable>(indices:[Int32]) -> MatAt<N> {
+        return MatAt(mat: self, indices: indices)
+    }
+}
